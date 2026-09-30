@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="TimeTracker.ReportsPage"
+             Title="Reports">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="12">
+            <Label Text="Totals by project" FontSize="22" FontAttributes="Bold"
+                   SemanticProperties.HeadingLevel="Level1" />
+            <HorizontalStackLayout Spacing="8">
+                <Label Text="Hourly rate" VerticalOptions="Center" />
+                <Entry x:Name="RateEntry" Keyboard="Numeric" Text="0" WidthRequest="100"
+                       TextChanged="OnRateChanged"
+                       SemanticProperties.Description="Hourly rate used for billable amounts" />
+            </HorizontalStackLayout>
+            <Label Text="Billed in 15-minute increments, rounded up." FontSize="12" />
+            <VerticalStackLayout x:Name="TotalsList" Spacing="4" />
+            <Label x:Name="EmptyLabel" Text="No finished entries yet." />
+        </VerticalStackLayout>
+    </ScrollView>
+</ContentPage>

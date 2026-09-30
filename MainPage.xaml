@@ -1,9 +1,28 @@
 <?xml version="1.0" encoding="utf-8" ?>
 <ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
              xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
-             x:Class="TimeTracker.MainPage">
-    <VerticalStackLayout VerticalOptions="Center" HorizontalOptions="Center" Spacing="12">
-        <Label Text="Time Tracker" FontSize="28" FontAttributes="Bold" HorizontalOptions="Center" />
-        <Label Text="Time Tracker — Mobile app (maui)" HorizontalOptions="Center" HorizontalTextAlignment="Center" />
-    </VerticalStackLayout>
+             x:Class="TimeTracker.MainPage"
+             Title="Timer">
+    <ScrollView>
+        <VerticalStackLayout Padding="24" Spacing="12">
+            <Label Text="Time Tracker" FontSize="28" FontAttributes="Bold"
+                   SemanticProperties.HeadingLevel="Level1" />
+            <Entry x:Name="ProjectEntry" Placeholder="Project name" ReturnType="Go"
+                   Completed="OnStartClicked"
+                   SemanticProperties.Description="Project to track" />
+            <Label x:Name="StatusLabel" Text="Stopped" FontSize="18" />
+            <Label x:Name="ElapsedLabel" Text="0m" FontSize="40" FontAttributes="Bold"
+                   SemanticProperties.Description="Elapsed time" />
+            <HorizontalStackLayout Spacing="12">
+                <Button x:Name="StartButton" Text="Start" Clicked="OnStartClicked"
+                        SemanticProperties.Hint="Starts timing the project; switches if another is running" />
+                <Button x:Name="StopButton" Text="Stop" Clicked="OnStopClicked" IsEnabled="False"
+                        SemanticProperties.Hint="Stops the timer and records the entry" />
+            </HorizontalStackLayout>
+            <Label x:Name="ErrorLabel" TextColor="Red" IsVisible="False" />
+            <Label Text="Entries" FontSize="20" FontAttributes="Bold"
+                   SemanticProperties.HeadingLevel="Level2" />
+            <VerticalStackLayout x:Name="EntriesList" Spacing="4" />
+        </VerticalStackLayout>
+    </ScrollView>
 </ContentPage>

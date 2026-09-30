@@ -2,10 +2,10 @@
 <Shell xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
        xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
        xmlns:local="clr-namespace:TimeTracker"
-       x:Class="TimeTracker.AppShell">
+       x:Class="TimeTracker.AppShell"
+       Title="Time Tracker">
     <TabBar>
-        <ShellContent Title="Home" ContentTemplate="{DataTemplate local:MainPage}" />
-        <ShellContent Title="Explore" ContentTemplate="{DataTemplate local:ExplorePage}" />
-        <ShellContent Title="Profile" ContentTemplate="{DataTemplate local:ProfilePage}" />
+        <ShellContent Title="Timer" ContentTemplate="{DataTemplate local:MainPage}" Route="timer" />
+        <ShellContent Title="Reports" ContentTemplate="{DataTemplate local:ReportsPage}" Route="reports" />
     </TabBar>
 </Shell>
