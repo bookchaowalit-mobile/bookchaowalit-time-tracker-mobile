@@ -36,3 +36,10 @@ compiles (XamlC) against the core; platform heads are CI-built only, no persiste
 - `MauiSharedCheck=true` build switch: compiles the shared XAML/C# as `net8.0`
   without the workload (verified locally, Release/XamlC, 0 warnings).
 - CI: new `app-shared` job (that check) and `android` job (`maui-android` workload build).
+
+## Done in this pass (pass 3)
+
+- Fixed hourly-rate parsing on the Reports tab: `NumberStyles.Number` accepts group separators anywhere, so "1,5" typed in en-US billed at 15/h (and "1.5" in de-DE at 15/h). New `Reports.ParseRate` requires real 3-digit groups, rejects signs/garbage, and is unit-tested per culture.
+- Project names: zero-width-only names (U+200B/U+2060/BOM) passed `IsNullOrWhiteSpace`; `Projects.Normalize` strips them and is now also applied to `Reports.AddManual`, which previously accepted blank projects and kept " Acme " separate from "Acme" in totals.
+- Pinned day splitting when DST skips local midnight (America/Santiago) — already correct.
+- 13 new test cases (36 total), verified with `dotnet test tests/TimeTracker.Core.Tests` and `dotnet build TimeTracker.csproj -c Release -p:MauiSharedCheck=true`.

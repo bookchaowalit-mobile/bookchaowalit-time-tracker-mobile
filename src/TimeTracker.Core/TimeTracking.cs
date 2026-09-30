@@ -1,3 +1,5 @@
+using System.Globalization;
+
 namespace TimeTracker.Core;
 
 /// <summary>A finished block of work on a project. End is exclusive.</summary>
@@ -19,9 +21,9 @@ public sealed class Stopwatch
     /// <summary>Starts a timer. If another is running it is stopped first (switching task).</summary>
     public void Start(string project, DateTimeOffset now)
     {
-        if (string.IsNullOrWhiteSpace(project)) throw new ArgumentException("project is required", nameof(project));
+        var name = Projects.Normalize(project);
         if (_running is not null) Stop(now);
-        _running = (project.Trim(), now);
+        _running = (name, now);
     }
 
     /// <summary>Stops the running timer and records the entry. Zero-length sessions are discarded.</summary>
@@ -40,12 +42,29 @@ public sealed class Stopwatch
     public TimeSpan Elapsed(DateTimeOffset now) => _running is { } r ? now - r.Start : TimeSpan.Zero;
 }
 
+public static class Projects
+{
+    private static readonly char[] Invisible = { '\u200B', '\u200C', '\u200D', '\u2060', '\uFEFF' };
+
+    /// <summary>
+    /// Trims the name and drops zero-width characters (U+200B, U+2060, BOM...);
+    /// throws when nothing visible is left.
+    /// </summary>
+    public static string Normalize(string? project)
+    {
+        var name = new string((project ?? string.Empty).Where(c => Array.IndexOf(Invisible, c) < 0).ToArray()).Trim();
+        if (name.Length == 0) throw new ArgumentException("project is required", nameof(project));
+        return name;
+    }
+}
+
 public static class Reports
 {
     /// <summary>Adds a manual entry after validating that End &gt; Start and it overlaps nothing.</summary>
     public static void AddManual(List<TimeEntry> entries, TimeEntry entry)
     {
         if (entry.End <= entry.Start) throw new ArgumentException("end must be after start");
+        entry = entry with { Project = Projects.Normalize(entry.Project) };
         var clash = entries.FirstOrDefault(e => e.Start < entry.End && entry.Start < e.End);
         if (clash is not null) throw new InvalidOperationException($"overlaps {clash.Project} {clash.Start:HH:mm}-{clash.End:HH:mm}");
         entries.Add(entry);
@@ -97,6 +116,30 @@ public static class Reports
         if (hourlyRate < 0) throw new ArgumentOutOfRangeException(nameof(hourlyRate));
         var hours = (decimal)RoundUp(duration, increment).Ticks / TimeSpan.TicksPerHour;
         return Math.Round(hours * hourlyRate, 2, MidpointRounding.AwayFromZero);
+    }
+
+    /// <summary>
+    /// Parses an hourly rate typed in <paramref name="culture"/>. Returns null for
+    /// invalid, negative or ambiguous input: thousands separators must form real
+    /// 3-digit groups, so "1,5" in en-US (a decimal comma typed by mistake) is
+    /// rejected instead of being read as 15.
+    /// </summary>
+    public static decimal? ParseRate(string? text, CultureInfo culture)
+    {
+        var t = text?.Trim();
+        if (string.IsNullOrEmpty(t)) return null;
+        var nf = culture.NumberFormat;
+        const NumberStyles styles = NumberStyles.AllowDecimalPoint | NumberStyles.AllowThousands;
+        if (!decimal.TryParse(t, styles, culture, out var rate)) return null;
+        var sep = nf.NumberDecimalSeparator;
+        var intPart = t.Contains(sep, StringComparison.Ordinal) ? t[..t.IndexOf(sep, StringComparison.Ordinal)] : t;
+        var group = nf.NumberGroupSeparator;
+        if (group.Length > 0 && intPart.Contains(group, StringComparison.Ordinal))
+        {
+            var groups = intPart.Split(group);
+            if (groups[0].Length is < 1 or > 3 || groups.Skip(1).Any(g => g.Length != 3)) return null;
+        }
+        return rate;
     }
 
     /// <summary>"1h 05m", "45m", "0m".</summary>

@@ -22,7 +22,7 @@ public partial class ReportsPage : ContentPage
 
     private void Render()
     {
-        var rate = decimal.TryParse(RateEntry.Text, NumberStyles.Number, CultureInfo.CurrentCulture, out var r) && r >= 0 ? r : 0m;
+        var rate = Reports.ParseRate(RateEntry.Text, CultureInfo.CurrentCulture) ?? 0m;
         var totals = Reports.TotalsByProject(TrackerState.Stopwatch.Entries);
         TotalsList.Children.Clear();
         foreach (var (project, total) in totals)
