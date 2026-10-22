@@ -7,8 +7,9 @@ compiles (XamlC) against the core; platform heads are CI-built only, no persiste
 
 ## Backlog
 
-- P0: Confirm the new `android` CI job is green on GitHub (never run locally:
-  this container has no Android SDK / MAUI workload). Fix whatever it reports.
+- P0 (done 2026-10-22): `android` CI job is green after pinning the .NET 8 SDK in
+  `global.json` (it failed with NETSDK1202 under the runner's default .NET 10 SDK).
+- P1 (owner decision): move off MAUI 8, which is past its support window.
 - P1: Persist entries (SQLite via `sqlite-net-pcl`) behind an interface in core;
   today entries live only for the app session.
 - P1: Weekly report view and CSV export; manual entry form using `Reports.AddManual`.
